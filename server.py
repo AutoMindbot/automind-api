@@ -67,8 +67,8 @@ def send_otp():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 # --- ADMIN CREDENTIALS (Ab ye yahan safe rahenge) ---
-ADMIN_ID = "starlord_X9#Core"      
-ADMIN_PASS = "sharma1127app4104" # Apna asli admin password yahan likh dena
+ADMIN_ID = os.environ.get('ADMIN_ID')      
+ADMIN_PASS = os.environ.get('ADMIN_PASS')
 
 @app.route('/login-admin', methods=['POST'])
 def login_admin():
