@@ -18,14 +18,14 @@ app = Flask(__name__)
 # ==========================================
 
 MY_GMAIL = "support.automind@gmail.com"
-MY_APP_PASS = "ovqg kjzf jovt hoab" # Apna 16-digit pass daalo
+MY_APP_PASS = os.environ.get("MY_APP_PASS")
 
-RAZORPAY_KEY_ID = "rzp_live_SYZHZG8szS0pmK"         # Apni asli Razorpay Key ID daalo
-RAZORPAY_KEY_SECRET = "lFGX5TGJZQDKeB084BT8CQc6" # Apni asli Razorpay Secret daalo
+RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET")
 
 # Firebase Config
 config = {
-    "apiKey": "AIzaSyBCAxW1E3vnZcf1L4rzbMT9BTeuWi342e8", # App.py se dekh kar apni API key daal dena
+    "apiKey": os.environ.get("FIREBASE_API_KEY"),
     "authDomain": "automind2004.firebaseapp.com",
     "databaseURL": "https://automind2004-default-rtdb.firebaseio.com",
     "projectId": "automind2004",
@@ -83,8 +83,7 @@ def login_admin():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 # --- AI SETTINGS ---
-GEMINI_KEY = "AIzaSyAzIoEvbQ8ElvgL4_fxkkENKqQqrQKU2Ow" # Yahan apni asli Gemini key daalo
-ai_client = genai.Client(api_key=GEMINI_KEY)
+ai_client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 # ----------------- ROUTE 2: VERIFY PAYMENT -----------------
 @app.route('/verify-payment', methods=['POST'])
