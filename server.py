@@ -8,6 +8,7 @@ import razorpay
 from datetime import datetime
 import hashlib
 from google import genai
+import razorpay
 
 app = Flask(__name__)
 
@@ -127,6 +128,28 @@ def verify_payment():
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+razor_client = razorpay.Client(auth=(os.environ.get("rzp_live_SYZHZG8szS0pmK"), os.environ.get("lFGX5TGJZQDKeB084BT8CQc6")))
+
+@app.route('/create-payment', methods=['POST'])
+def create_payment():
+    try:
+        data = request.json
+        amount = int(float(data.get("price")) * 100) # Paisa mein convert
+        credits = data.get("credits")
+        user_email = data.get("email", "user@example.com")
+        username = data.get("username")
+
+        payment_link = razor_client.payment_link.create({
+            "amount": amount,
+            "currency": "INR",
+            "description": f"AutoMind - {credits} Credits",
+            "customer": {"name": username, "email": user_email},
+            "notify": {"sms": False, "email": False}
+        })
+        return jsonify({"status": "success", "pay_url": payment_link['short_url'], "pay_id": payment_link['id']})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
 
 # ----------------- ROUTE 3: GET AI ANSWER -----------------
 @app.route('/get-ai-answer', methods=['POST'])
