@@ -129,7 +129,10 @@ def verify_payment():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-razor_client = razorpay.Client(auth=(os.environ.get("rzp_live_SYZHZG8szS0pmK"), os.environ.get("lFGX5TGJZQDKeB084BT8CQc6")))
+razor_client = razorpay.Client(auth=(
+    os.environ.get("RAZORPAY_KEY_ID"), 
+    os.environ.get("RAZORPAY_KEY_SECRET")
+))
 
 @app.route('/create-payment', methods=['POST'])
 def create_payment():
