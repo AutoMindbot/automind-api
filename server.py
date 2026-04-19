@@ -146,6 +146,11 @@ def get_ai_answer():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+import os
+
 if __name__ == '__main__':
-    print("AutoMind SECURE Server is Running...")
-    app.run(port=5000)
+    # Render khud batata hai ki kaunsa port use karna hai
+    port = int(os.environ.get("PORT", 5000))
+    print(f"AutoMind SECURE Server is Running on port {port}...")
+    # 0.0.0.0 ka matlab hai ki server bahar ki duniya se connect ho sakta hai
+    app.run(host='0.0.0.0', port=port)
