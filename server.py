@@ -151,14 +151,48 @@ def create_payment():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
 
+# ----------------- ROUTE: VERIFY PAYMENT (CLEAN VERSION) -----------------
 @app.route('/verify-payment', methods=['POST'])
 def verify_payment():
-    pay_id = request.json.get("pay_id")
     try:
+        data = request.get_json()
+        pay_id = data.get('pay_id')
+        user = data.get('user')
+        credits_to_add = data.get('credits_to_add')
+        price = data.get('price')
+
+        # 1. Razorpay se check karo payment status
         link_status = razor_client.payment_link.fetch(pay_id)
-        return jsonify({"status": link_status['status']}) # 'paid' ya 'pending' bhejega
+        
+        if link_status['status'] == 'paid':
+            # 2. Duplicate check
+            payment_log_ref = db.child("payment_logs").order_by_child("razorpay_link_id").equal_to(pay_id).get().val()
+            if payment_log_ref:
+                return jsonify({"status": "already_processed"}), 200
+
+            # 3. Agar 'user' aur 'credits' ka data hai, toh update karo
+            if user and credits_to_add:
+                user_ref = db.child("users").child(user).get().val()
+                if user_ref:
+                    new_credits = int(user_ref.get('credits', 0)) + int(credits_to_add)
+                    db.child("users").child(user).update({"credits": new_credits})
+                    
+                    # Log transaction
+                    secure_token = hash_password(f"{pay_id}_RazorPay_{credits_to_add}")
+                    db.child("payment_logs").push({
+                        "user": user, "razorpay_link_id": pay_id, 
+                        "amount": price, "credits_added": credits_to_add,
+                        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "status": "Success", "verify_hash": secure_token
+                    })
+                    return jsonify({"status": "paid", "new_credits": new_credits}), 200
+
+            return jsonify({"status": "paid"}), 200
+        else:
+            return jsonify({"status": "pending"}), 200
+
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 # ----------------- ROUTE 3: GET AI ANSWER -----------------
 @app.route('/get-ai-answer', methods=['POST'])
