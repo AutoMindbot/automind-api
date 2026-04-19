@@ -1,4 +1,5 @@
 # server.py
+import os
 from flask import Flask, request, jsonify
 import smtplib
 import random
