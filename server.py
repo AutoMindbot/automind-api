@@ -151,6 +151,15 @@ def create_payment():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
 
+@app.route('/verify-payment', methods=['POST'])
+def verify_payment():
+    pay_id = request.json.get("pay_id")
+    try:
+        link_status = razor_client.payment_link.fetch(pay_id)
+        return jsonify({"status": link_status['status']}) # 'paid' ya 'pending' bhejega
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
 # ----------------- ROUTE 3: GET AI ANSWER -----------------
 @app.route('/get-ai-answer', methods=['POST'])
 def get_ai_answer():
