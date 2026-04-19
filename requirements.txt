@@ -1,5 +1,7 @@
-Flask
+flask
+flask-cors
 pyrebase4
 razorpay
+google-generativeai
 google-genai
 requests
